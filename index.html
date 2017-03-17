@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Pomodoro Timer</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono|Roboto" rel="stylesheet">
+    <style>
+        body {
+            margin: 0px;
+            padding:0px;
+            font-family: 'Roboto', sans-serif;
+            color: antiquewhite;
+            display: flex;
+            min-height:100vh;
+            flex-direction:column;
+            text-align: center;
+            background: linear-gradient(90deg, #4CB8C4 10%, #3CD3AD 90%);
+        }
+        h1{
+            font-size: 48px;
+        }
+        .main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: auto;
+        }
+
+        .main-time{
+            height: 350px;
+            width:350px;
+            border-radius: 100%;
+            border:#4CB8C4 solid 5px;
+            display: flex;
+         }
+         #time{
+             align-self: center;
+             margin: auto;
+             font-size: 96px;
+             color: antiquewhite;
+         }
+        .type{
+            flex:1;
+        }
+    
+        .main-bottom{
+            flex:1;
+            display: flex;
+            margin-top: 40px;
+            flex-direction: row;
+        }
+        footer {
+            background-color:aqua;
+        }
+        button {
+        }
+
+    </style>
+</head>
+<body class="container">
+        <header>
+        </header>
+        <section class="main">
+            <div class="main-top">
+                <h1>Pomodoro Timer</h1>
+            </div>
+            <div class="main-time">
+                <div id="time">
+                    <span class="mins">00</span>
+                    <span class="colon">:</span>
+                    <span class="secs">00</span>
+                </div>
+            </div>
+            <div class="main-bottom">
+                <div>
+                    <button id="start">Start</button>
+                    <button id="sBreak">Short Break</button>
+                    <button id="lBreak">Long Break</button>
+                    <button id="reset">Reset</button>
+                </div>
+            </div>
+        </section>
+        <footer>
+            Created with love by Aaron
+        </footer>
+</body>
+<script>
+    function pomodoro() {
+        //global start times, in seconds
+        var running = false;
+        var pomTime = 1500;
+        var shortB = 300;
+        var longB = 600;
+        
+        function timer(duration){
+            var mins = parseInt(duration / 60, 10);
+            var seconds = parseInt(duration % 60, 10);
+
+            //add "0" in front if under 10
+            mins = mins < 10 ? "0" + mins : mins;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            //push to screen
+            document.getElementById('time').innerHTML = mins + ":" + seconds;
+
+            //what to do if timer runs out
+            if(mins === )
+        }
+        //map the functions to the buttons
+        document.getElementById('start').addEventListener('click', start()); 
+        document.getElementById('sBreak').addEventListener('click', sBreak()); 
+        document.getElementById('lBreak').addEventListener('click', lBreak()); 
+        document.getElementById('reset').addEventListener('click', reset());
+
+        //the functions
+        function start(){
+            running = true;
+        };
+        function sBreak(){
+            running = false;
+        }; 
+        function lBreak(){
+            running = false;
+        }; 
+        function reset(){
+            running = false;
+        };  
+
+        //increment/decrease time by 1 mins
+    }
+</script>
+</html>    
