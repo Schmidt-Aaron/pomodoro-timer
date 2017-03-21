@@ -68,9 +68,9 @@
             </div>
             <div class="main-time">
                 <div id="time">
-                    <span class="mins">00</span>
+                    <span id="mins">25</span>
                     <span class="colon">:</span>
-                    <span class="secs">00</span>
+                    <span id="secs">00</span>
                 </div>
             </div>
             <div class="main-bottom">
@@ -90,45 +90,68 @@
     function pomodoro() {
         //global start times, in seconds
         var running = false;
+        var onBreak = false;
         var pomTime = 1500;
         var shortB = 300;
         var longB = 600;
         
-        function timer(duration){
-            var mins = parseInt(duration / 60, 10);
-            var seconds = parseInt(duration % 60, 10);
-
-            //add "0" in front if under 10
-            mins = mins < 10 ? "0" + mins : mins;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
-
-            //push to screen
-            document.getElementById('time').innerHTML = mins + ":" + seconds;
-
-            //what to do if timer runs out
-            if(mins === )
-        }
         //map the functions to the buttons
-        document.getElementById('start').addEventListener('click', start()); 
-        document.getElementById('sBreak').addEventListener('click', sBreak()); 
-        document.getElementById('lBreak').addEventListener('click', lBreak()); 
-        document.getElementById('reset').addEventListener('click', reset());
+        document.getElementById('start').addEventListener('click', start); 
+        //document.getElementById('sBreak').addEventListener('click', sBreak()); 
+        //document.getElementById('lBreak').addEventListener('click', lBreak()); 
+        //document.getElementById('reset').addEventListener('click', reset());
+          
+        var mins = document.getElementById("mins");
+        var secs = document.getElementById("secs");
+
+        function timer(duration){
+
+            var dur = duration * 1000; //convert to millaseconds
+
+            var end = new Date().getTime() + dur;
+ 
+            setInterval(function(){
+                var start = new Date().getTime();
+                var diff = end - start; // in ms
+                var minutes = Math.floor(diff / 1000 / 60);
+                var seconds = Math.floor((diff % (1000*60)) / 1000 );
+                //console.log(mins + " " + seconds);
+
+                mins.innerHTML = minutes;
+                secs.innerHTML = seconds;
+            }, 100); //fire every second
+        }
+
+     
+        
 
         //the functions
         function start(){
             running = true;
+            console.log(running);
+            timer(pomTime);
         };
+
         function sBreak(){
             running = false;
-        }; 
+            onBreak = true;
+            timer(shortB);
+        };
+
         function lBreak(){
             running = false;
-        }; 
+            onBreak = true;
+            timer(longB);
+        };
+
         function reset(){
             running = false;
         };  
 
         //increment/decrease time by 1 mins
+       
     }
+
+    window.onload = pomodoro();
 </script>
 </html>    
