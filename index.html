@@ -87,65 +87,108 @@
         </footer>
 </body>
 <script>
+/*
+    //notes:
+    //keep time values in millaseconds for consistency
+    //work in progress, forgive messiness, all the console.logs and possible crap logic :)
+*/
     function pomodoro() {
-        //global start times, in seconds
-        var running = false;
-        var onBreak = false;
-        var pomTime = 1500;
-        var shortB = 300;
-        var longB = 600;
+
+        //global start times, in millaseconds
+        var running = false;        //global runstate toggle
+        var pomTime = 1500 * 1000;  //25mins
+        var shortB = 300 * 1000;    //5mins
+        var longB = 600 * 1000;     //10mins
+        var currentTimer;           // preserve current timer when stopping/starting
         
-        //map the functions to the buttons
-        document.getElementById('start').addEventListener('click', start); 
-        //document.getElementById('sBreak').addEventListener('click', sBreak()); 
-        //document.getElementById('lBreak').addEventListener('click', lBreak()); 
-        //document.getElementById('reset').addEventListener('click', reset());
+        //various function and var mappings
+        
+        document.getElementById('sBreak').addEventListener('click', sBreak); 
+        document.getElementById('lBreak').addEventListener('click', lBreak); 
+        document.getElementById('reset').addEventListener('click', reset);
           
         var mins = document.getElementById("mins");
         var secs = document.getElementById("secs");
 
+        //start/stop toggle 
+        if(running === false) {
+            //document.getElementById('start').removeEventListener('click', stop);
+            document.getElementById('start').addEventListener('click', start);
+            document.getElementById('start').innerHTML = "Start"; 
+
+        }
+        if(running === true) {
+            document.getElementById('start').removeEventListener('click', start);
+            document.getElementById('start').addEventListener('click', stop);
+            document.getElementById('start').innerHTML = "Stop";
+
+        }
+
+        //the functions
+        //main timer function
         function timer(duration){
+            var end = new Date().getTime() + duration;
+            interval(end);
+        }
 
-            var dur = duration * 1000; //convert to millaseconds
-
-            var end = new Date().getTime() + dur;
- 
-            setInterval(function(){
+        var interval =  setInterval(function(x){
                 var start = new Date().getTime();
-                var diff = end - start; // in ms
-                var minutes = Math.floor(diff / 1000 / 60);
-                var seconds = Math.floor((diff % (1000*60)) / 1000 );
-                //console.log(mins + " " + seconds);
+                currentTimer = x - start; // in ms
+                var minutes = Math.floor(currentTimer / 1000 / 60);
+                var seconds = Math.floor((currentTimer % (1000 * 60)) / 1000 );
+                //console.log(currentTimer);
 
                 mins.innerHTML = minutes;
                 secs.innerHTML = seconds;
-            }, 100); //fire every second
-        }
+            }, 100); //fire 1/10 sec to keep it smooth
 
-     
-        
-
-        //the functions
         function start(){
             running = true;
-            console.log(running);
-            timer(pomTime);
+            console.log("the timer is running? : " + running); //test
+            //calls the timer function with a default time of 25mins if the current timer variable is empty
+            //else calls with the current duration 
+            if(currentTimer === undefined) {
+                timer(pomTime);
+            } else {
+                timer(currentTimer);
+            }
         };
 
-        function sBreak(){
+        function stop() {
+            console.log("stop");
             running = false;
-            onBreak = true;
-            timer(shortB);
+            console.log("the timer is running? : " + running); //test
+            //stop the timer
+            clearInterval(interval);
+            console.log("current timer is " + currentTimer);
+
+        };
+        function sBreak(){
+            console.log("short break");
+            clearInterval(interval);
+            running = false;
+            console.log("the timer is running? : " + running); //test
+            currentTimer = shortB;
+            mins.innerHTML = "5";
+            secs.innerHTML = "00";
         };
 
         function lBreak(){
+            console.log("long break");
+            clearInterval(interval);
             running = false;
-            onBreak = true;
-            timer(longB);
+            console.log("the timer is running? : " + running); //test
+            currentTimer = longB;
+            mins.innerHTML = "10";
+            secs.innerHTML = "00";
         };
 
         function reset(){
+            console.log("reset");
+            clearInterval(interval);
             running = false;
+            currentTimer = undefined;
+            console.log("the timer is running? : " + running); //test
         };  
 
         //increment/decrease time by 1 mins
