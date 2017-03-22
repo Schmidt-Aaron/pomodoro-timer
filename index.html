@@ -94,15 +94,16 @@
 */
     function pomodoro() {
 
-        //global start times, in millaseconds
+        //global vars / start times, in millaseconds
         var running = false;        //global runstate toggle
         var pomTime = 1500 * 1000;  //25mins
         var shortB = 300 * 1000;    //5mins
         var longB = 600 * 1000;     //10mins
         var currentTimer;           // preserve current timer when stopping/starting
+        var end; //end of timer
         
         //various function and var mappings
-        
+        document.getElementById('start').addEventListener('click', begin);
         document.getElementById('sBreak').addEventListener('click', sBreak); 
         document.getElementById('lBreak').addEventListener('click', lBreak); 
         document.getElementById('reset').addEventListener('click', reset);
@@ -110,63 +111,76 @@
         var mins = document.getElementById("mins");
         var secs = document.getElementById("secs");
 
-        //start/stop toggle 
-        if(running === false) {
-            //document.getElementById('start').removeEventListener('click', stop);
-            document.getElementById('start').addEventListener('click', start);
-            document.getElementById('start').innerHTML = "Start"; 
+        //the main doer
+        function toggle(){
+            var theInt =  setInterval(function(){
+                if(running === true){
+                    timer();
+                }
+                
+                //stop interval if not running or time reaches 0
+                if(currentTimer == 0 || running === false) {
+                    clearInterval(theInt);
+                    }                
+                }, 1000);
 
-        }
-        if(running === true) {
-            document.getElementById('start').removeEventListener('click', start);
-            document.getElementById('start').addEventListener('click', stop);
-            document.getElementById('start').innerHTML = "Stop";
+            console.log("toggle; running: " + running +" theInt: " + theInt);
+            //toggle html/event listeners
+            if(running === false) {
+                document.getElementById('start').removeEventListener('click', stop);
+                document.getElementById('start').addEventListener('click', begin);
+                document.getElementById('start').innerHTML = "Start"; 
+            }
 
-        }
+            if(running === true) {
+                document.getElementById('start').removeEventListener('click', begin);
+                document.getElementById('start').addEventListener('click', stop);
+                document.getElementById('start').innerHTML = "Stop";
+            }
+        };
 
         //the functions
         //main timer function
         function timer(duration){
-            var end = new Date().getTime() + duration;
-            interval(end);
-        }
-
-        var interval =  setInterval(function(x){
-                var start = new Date().getTime();
-                currentTimer = x - start; // in ms
+                var start = new Date().getTime(); //current time
+                currentTimer = end - start; // in ms
                 var minutes = Math.floor(currentTimer / 1000 / 60);
                 var seconds = Math.floor((currentTimer % (1000 * 60)) / 1000 );
-                //console.log(currentTimer);
-
+                console.log("time left is" + currentTimer);
                 mins.innerHTML = minutes;
                 secs.innerHTML = seconds;
-            }, 100); //fire 1/10 sec to keep it smooth
-
-        function start(){
-            running = true;
-            console.log("the timer is running? : " + running); //test
-            //calls the timer function with a default time of 25mins if the current timer variable is empty
-            //else calls with the current duration 
-            if(currentTimer === undefined) {
-                timer(pomTime);
-            } else {
-                timer(currentTimer);
-            }
         };
 
-        function stop() {
+        function begin(){
+            //calls the timer function with a default time of 25mins if the current timer variable is empty
+            //else calls with the current duration 
+            running = true;
+            if(currentTimer === undefined) {
+                end = new Date().getTime() + pomTime;
+                console.log(end);
+                toggle();
+            } else {
+                end = new Date().getTime() + currentTimer;
+                console.log(end);
+                toggle();
+            } 
+            console.log("the timer is running? : " + running); //test
+        };
+
+        function stop(){
             console.log("stop");
             running = false;
+            toggle();
             console.log("the timer is running? : " + running); //test
             //stop the timer
-            clearInterval(interval);
             console.log("current timer is " + currentTimer);
+            console.log(end);
 
         };
         function sBreak(){
             console.log("short break");
-            clearInterval(interval);
             running = false;
+            toggle();
             console.log("the timer is running? : " + running); //test
             currentTimer = shortB;
             mins.innerHTML = "5";
@@ -175,8 +189,8 @@
 
         function lBreak(){
             console.log("long break");
-            clearInterval(interval);
             running = false;
+            toggle();
             console.log("the timer is running? : " + running); //test
             currentTimer = longB;
             mins.innerHTML = "10";
@@ -185,15 +199,28 @@
 
         function reset(){
             console.log("reset");
-            clearInterval(interval);
             running = false;
+            toggle();
             currentTimer = undefined;
             console.log("the timer is running? : " + running); //test
+            mins.innerHTML = "25";
+            secs.innerHTML = "00";
         };  
 
-        //increment/decrease time by 1 mins
-       
-    }
+        //increment/decrease time by 1 mins; only works if end var is defined
+        function addMin(){
+            if(end !== undefined) {
+                end += (60 * 1000);
+            }
+        };
+
+        function minusMin(){
+            if(end !== undefined) {
+                end -= (60 * 1000);
+            }
+        };
+        
+    } //end pomodoro;
 
     window.onload = pomodoro();
 </script>
