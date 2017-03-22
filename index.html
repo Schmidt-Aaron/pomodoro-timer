@@ -146,9 +146,11 @@
                 currentTimer = end - start; // in ms
                 var minutes = Math.floor(currentTimer / 1000 / 60);
                 var seconds = Math.floor((currentTimer % (1000 * 60)) / 1000 );
-                console.log("time left is" + currentTimer);
-                mins.innerHTML >= 10 ? minutes : "0" + minutes;
-                secs.innerHTML >= 10 ? seconds : "0" + seconds;
+                //console.log("time left is" + currentTimer);
+                minutes >= 10 ? minutes : "0" + minutes
+                seconds >= 10 ? seconds : "0" + seconds
+                mins.innerHTML = minutes;
+                secs.innerHTML = seconds;
         };
 
         function begin(){
