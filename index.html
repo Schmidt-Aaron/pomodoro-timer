@@ -31,6 +31,7 @@
             flex-direction: column;
             align-items: center;
             margin: auto;
+            margin-top:40px;
         }
 
         .main-time{
@@ -39,6 +40,7 @@
             border-radius: 100%;
             border:#4CB8C4 solid 5px;
             display: flex;
+            margin-top: 20px;
          }
          #time{
              align-self: center;
@@ -53,13 +55,16 @@
         .main-bottom{
             flex:1;
             display: flex;
-            margin-top: 40px;
+            margin-top: 60px;
             flex-direction: row;
         }
         footer {
             background-color:aqua;
         }
         button {
+            height: 3em;
+            width: 8em;
+            margin: 0 1em;
         }
 
     </style>
@@ -91,7 +96,7 @@
             <div class="main-bottom">
                 <div>
                     <button id="start">Start</button>
-                    <button id="break">Break</button>
+                    <button id="mode">Mode</button>
                     <button id="reset">Reset</button>
                 </div>
             </div>
@@ -122,7 +127,7 @@
         
         //function and var mappings
         document.getElementById('start').addEventListener('click', begin);
-        document.getElementById('break').addEventListener('click', breaks);  
+        document.getElementById('mode').addEventListener('click', breaks);  
         document.getElementById('reset').addEventListener('click', reset);
 
         document.getElementById('pomTime').innerHTML = pomoTime;
@@ -144,17 +149,23 @@
                 if(running === true){
                     timer();
                 }
-                //play sound
-                if(currentTimer === 0) {
+                //what to do if countdown reaches 0
+                if( currentTimer < 0 ) {
+                    clearInterval(theInt);
                     
+                    //play sound
+                    var beep = "http://www.wavsource.com/snds_2017-03-26_2137986549265739/tv/south_park/respect_x.wav";
+                    var sound = new Audio(beep);
+                    sound.play();
+                    reset();
                 }
-                //stop interval if not running or time reaches 0
-                if(currentTimer == 0 || running === false) {
+
+                //stop interval if not running 
+                else if( running === false) {
                     clearInterval(theInt);
                     }                
                 }, 500);
 
-            console.log("toggle; running: " + running +" theInt: " + theInt);
             //toggle html/event listeners
             if(running === false) {
                 document.getElementById('start').removeEventListener('click', stop);
@@ -193,53 +204,46 @@
             //else calls with the current duration 
             running = true;
             if(currentTimer === undefined) {
-                end = new Date().getTime() + convert(mins.innerHTML);
-                //console.log(end);
+                if(isBreak === false){
+                    end = new Date().getTime() + convert(pomoTime);
+                }
+                else if(isBreak === true){
+                    end = new Date().getTime() + convert(breakTime);
+                }
                 toggle();
             } else {
                 end = new Date().getTime() + currentTimer;
-                //console.log(end);
                 toggle();
             } 
-            console.log("the timer is running? : " + running); //test
         };
 
         function stop(){
-            console.log("stop");
             running = false;
             toggle();
-            //console.log("the timer is running? : " + running); //test
-            //stop the timer
-            //console.log("current timer is " + currentTimer);
-            //console.log(end);
-
         };
+
         function breaks() {
-            console.log("break");
             running = false;
             toggle();
-            console.log("the timer is running? : " + running); //test
             if(isBreak === false){
                 currentTimer = convert(breakTime);
                 mins.innerHTML = breakTime;
                 secs.innerHTML = "00";
                 isBreak = true;
-                document.getElementById('break').innerHTML = "Pomodoro";
+                document.getElementById('mode').innerHTML = "Pomodoro";
             } else if (isBreak === true) {
                 currentTimer = convert(pomoTime);
                 mins.innerHTML = pomoTime;
                 secs.innerHTML = "00";
                 isBreak = false;
-                document.getElementById('break').innerHTML = "Break";
+                document.getElementById('mode').innerHTML = "Break";
             }
         };
 
         function reset(){
-            console.log("reset");
             running = false;
             toggle();
             currentTimer = undefined;
-            console.log("the timer is running? : " + running); //test
             if(isBreak === false) {
                 mins.innerHTML = pomoTime;
             } else if (isBreak === true) {
@@ -251,27 +255,31 @@
         //increment/decrease time by 1 mins;
         function addP(){
             pomoTime++;
-            if(currentTimer !== undefined){
-               document.getElementById('pomTime').innerHTML = pomoTime;}
-            if(running === false){
+            document.getElementById('pomTime').innerHTML = pomoTime;
+            if(running === false && isBreak === false){
                 mins.innerHTML = pomoTime;
             }
         };
         function minusP(){
-           pomoTime--;
-           if(currentTimer !== undefined){
-               document.getElementById('pomTime').innerHTML = pomoTime;}
-           if(running === false){
+            pomoTime--;
+            document.getElementById('pomTime').innerHTML = pomoTime;
+            if(running === false && isBreak === false){
                 mins.innerHTML = pomoTime;
             }
         };
         function addB(){
             breakTime++;
             document.getElementById('breakTime').innerHTML = breakTime;
+            if(running === false && isBreak === true){
+                mins.innerHTML = breakTime;
+            }
         };
         function minusB(){
            breakTime--;
            document.getElementById('breakTime').innerHTML = breakTime;
+           if(running === false && isBreak === true){
+                mins.innerHTML = breakTime;
+            }
         };
 
     } //end pomodoro;
