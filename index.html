@@ -21,6 +21,11 @@
         h1{
             font-size: 48px;
         }
+        .options {
+            display: inline-block;
+            font-size: 36px;
+            padding: 20px;
+        }
         .main {
             display: flex;
             flex-direction: column;
@@ -61,10 +66,20 @@
 </head>
 <body class="container">
         <header>
+            <h1>Pomodoro Timer</h1>
         </header>
         <section class="main">
             <div class="main-top">
-                <h1>Pomodoro Timer</h1>
+                <div class="options">
+                    <span id="minusPom" class="adjTime">-</span>
+                    <span id="pomTime"></span>
+                    <span id="addPom" class="adjTime">+</span>
+                </div>
+                <div class="options">
+                    <span id="minusBreak" class="adjTime">-</span>
+                    <span id="breakTime"></span>
+                    <span id="addBreak" class="adjTime">+</span>
+                </div>
             </div>
             <div class="main-time">
                 <div id="time">
@@ -76,8 +91,7 @@
             <div class="main-bottom">
                 <div>
                     <button id="start">Start</button>
-                    <button id="sBreak">Short Break</button>
-                    <button id="lBreak">Long Break</button>
+                    <button id="break">Break</button>
                     <button id="reset">Reset</button>
                 </div>
             </div>
@@ -95,34 +109,50 @@
     function pomodoro() {
 
         //global vars / start times, in millaseconds
-        var running = false;        //global runstate toggle
-        var pomTime = 1500 * 1000;  //25mins
-        var shortB = 300 * 1000;    //5mins
-        var longB = 600 * 1000;     //10mins
-        var currentTimer;           // preserve current timer when stopping/starting
-        var end; //end of timer
+        var running = false;        // runstate toggle
+        var isBreak = false;          // regular vs break
+        var pomoTime = 25;          //default pomodoro time
+        var breakTime = 5;          //default break time
+        var currentTimer;           //preserve current timer when stopping/starting
+        var end;                    //end of timer
         
-        //various function and var mappings
+        //remove highlighting when double clicking the plus/minus buttons
+        var adjusts = document.getElementsByClassName('options');
+        Array.from(adjusts).forEach(e => e.addEventListener('mousedown', f => f.preventDefault() ));
+        
+        //function and var mappings
         document.getElementById('start').addEventListener('click', begin);
-        document.getElementById('sBreak').addEventListener('click', sBreak); 
-        document.getElementById('lBreak').addEventListener('click', lBreak); 
+        document.getElementById('break').addEventListener('click', breaks);  
         document.getElementById('reset').addEventListener('click', reset);
-          
+
+        document.getElementById('pomTime').innerHTML = pomoTime;
+        document.getElementById('breakTime').innerHTML = breakTime;
+
+        document.getElementById('minusPom').addEventListener('click', minusP);
+        document.getElementById('addPom').addEventListener('click', addP);
+
+        document.getElementById('minusBreak').addEventListener('click', minusB);
+        document.getElementById('addBreak').addEventListener('click', addB);
+        
         var mins = document.getElementById("mins");
         var secs = document.getElementById("secs");
 
-        //the main doer
+        //the functions
+        //the main doer; calls the timer function 
         function toggle(){
             var theInt =  setInterval(function(){
                 if(running === true){
                     timer();
                 }
-                
+                //play sound
+                if(currentTimer === 0) {
+                    
+                }
                 //stop interval if not running or time reaches 0
                 if(currentTimer == 0 || running === false) {
                     clearInterval(theInt);
                     }                
-                }, 100);
+                }, 500);
 
             console.log("toggle; running: " + running +" theInt: " + theInt);
             //toggle html/event listeners
@@ -139,31 +169,36 @@
             }
         };
 
-        //the functions
+        
         //main timer function
-        function timer(duration){
+        function timer(){
                 var start = new Date().getTime(); //current time
                 currentTimer = end - start; // in ms
                 var minutes = Math.floor(currentTimer / 1000 / 60);
                 var seconds = Math.floor((currentTimer % (1000 * 60)) / 1000 );
-                //console.log("time left is" + currentTimer);
-                minutes = minutes > 10 ? minutes : "0" + minutes
-                seconds = seconds > 10 ? seconds : "0" + seconds
-                mins.innerHTML = minutes;
+                
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+                mins.innerHTML = minutes; 
                 secs.innerHTML = seconds;
         };
 
+        //converts minutes to ms
+        function convert(time){
+            return time * 60 * 1000;
+        };
+
         function begin(){
-            //calls the timer function with a default time of 25mins if the current timer variable is empty
+            //calls the timer function with a default time if the currentTimer variable is empty
             //else calls with the current duration 
             running = true;
             if(currentTimer === undefined) {
-                end = new Date().getTime() + pomTime;
-                console.log(end);
+                end = new Date().getTime() + convert(mins.innerHTML);
+                //console.log(end);
                 toggle();
             } else {
                 end = new Date().getTime() + currentTimer;
-                console.log(end);
+                //console.log(end);
                 toggle();
             } 
             console.log("the timer is running? : " + running); //test
@@ -173,30 +208,30 @@
             console.log("stop");
             running = false;
             toggle();
-            console.log("the timer is running? : " + running); //test
+            //console.log("the timer is running? : " + running); //test
             //stop the timer
-            console.log("current timer is " + currentTimer);
-            console.log(end);
+            //console.log("current timer is " + currentTimer);
+            //console.log(end);
 
         };
-        function sBreak(){
-            console.log("short break");
+        function breaks() {
+            console.log("break");
             running = false;
             toggle();
             console.log("the timer is running? : " + running); //test
-            currentTimer = shortB;
-            mins.innerHTML = "5";
-            secs.innerHTML = "00";
-        };
-
-        function lBreak(){
-            console.log("long break");
-            running = false;
-            toggle();
-            console.log("the timer is running? : " + running); //test
-            currentTimer = longB;
-            mins.innerHTML = "10";
-            secs.innerHTML = "00";
+            if(isBreak === false){
+                currentTimer = convert(breakTime);
+                mins.innerHTML = breakTime;
+                secs.innerHTML = "00";
+                isBreak = true;
+                document.getElementById('break').innerHTML = "Pomodoro";
+            } else if (isBreak === true) {
+                currentTimer = convert(pomoTime);
+                mins.innerHTML = pomoTime;
+                secs.innerHTML = "00";
+                isBreak = false;
+                document.getElementById('break').innerHTML = "Break";
+            }
         };
 
         function reset(){
@@ -205,23 +240,40 @@
             toggle();
             currentTimer = undefined;
             console.log("the timer is running? : " + running); //test
-            mins.innerHTML = "25";
+            if(isBreak === false) {
+                mins.innerHTML = pomoTime;
+            } else if (isBreak === true) {
+                mins.innerHTML = breakTime;
+            }
             secs.innerHTML = "00";
         };  
 
-        //increment/decrease time by 1 mins; only works if end var is defined
-        function addMin(){
-            if(end !== undefined) {
-                end += (60 * 1000);
+        //increment/decrease time by 1 mins;
+        function addP(){
+            pomoTime++;
+            if(currentTimer !== undefined){
+               document.getElementById('pomTime').innerHTML = pomoTime;}
+            if(running === false){
+                mins.innerHTML = pomoTime;
             }
+        };
+        function minusP(){
+           pomoTime--;
+           if(currentTimer !== undefined){
+               document.getElementById('pomTime').innerHTML = pomoTime;}
+           if(running === false){
+                mins.innerHTML = pomoTime;
+            }
+        };
+        function addB(){
+            breakTime++;
+            document.getElementById('breakTime').innerHTML = breakTime;
+        };
+        function minusB(){
+           breakTime--;
+           document.getElementById('breakTime').innerHTML = breakTime;
         };
 
-        function minusMin(){
-            if(end !== undefined) {
-                end -= (60 * 1000);
-            }
-        };
-        
     } //end pomodoro;
 
     window.onload = pomodoro();
